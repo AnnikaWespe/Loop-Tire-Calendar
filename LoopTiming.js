@@ -62,36 +62,76 @@ var setTableData = function(year0, year1, year2, year3) {
 				var yearMin = new Number(year0);
 				var yearMax = new Number(year3);
 				if (currentStartYear < yearMin && currentEndYear == year0) {
-					markBeginningOfYear(year0, currentEndKW, currentStatus);
+					markBeginningOfYear(year0, currentEndKW, currentStatus, i);
 				} else if (currentEndYear > yearMax && currentStartYear == year3) {
-					markEndOfYear(year3, currentStartKW, currentStatus);
+					markEndOfYear(year3, currentStartKW, currentStatus, i);
 				} else if (yearMin <= currentStartYear && currentEndYear <= yearMax) {
 					if (currentStartYear < currentEndYear) {
-						markEndOfYear(currentStartYear, currentStartKW, currentStatus);
-						markBeginningOfYear(currentEndYear, currentEndKW, currentStatus);
+						markEndOfYear(currentStartYear, currentStartKW, currentStatus, i);
+						markBeginningOfYear(currentEndYear, currentEndKW, currentStatus, i);
 					} else {
-						markInYear(currentStartYear, currentStartKW, currentEndKW, currentStatus);
+						markInYear(currentStartYear, currentStartKW, currentEndKW, currentStatus, i);
 					}
 				};
 			};
+			setTooltips();
 		});
 	})
 }
 
-var markBeginningOfYear = function(year, KW, status) {
+var markBeginningOfYear = function(year, KW, status, index) {
 	for (var j = 0; j < KW; j++) {
-		$(".year" + year).find("[id='row0column" + j + "']").css("background-color", statusColorMap[status]);
+		$currentTableCell = $(".year" + year).find("[id='row0column" + j + "']");
+		$currentTableCell.addClass("index" + index);
+		$currentTableCell.css("background-color", statusColorMap[status]);
 	};
 }
 
-var markEndOfYear = function(year, KW, status) {
+var markEndOfYear = function(year, KW, status, index) {
 	for (var j = KW; j < 52; j++) {
-		$(".year" + year).find("[id='row0column" + j + "']").css("background-color", statusColorMap[status]);
+		$currentTableCell = $(".year" + year).find("[id='row0column" + j + "']");
+		$currentTableCell.addClass("index" + index);
+		$currentTableCell.css("background-color", statusColorMap[status]);
 	}
 }
-var markInYear = function(year, start, end, status) {
+var markInYear = function(year, start, end, status, index) {
 	for (var j = start; j < end; j++) {
-		$(".year" + year).find("[id='row0column" + j + "']").css("background-color", statusColorMap[status]);
+		$currentTableCell = $(".year" + year).find("[id='row0column" + j + "']");
+		$currentTableCell.data("index", index);
+		$currentTableCell.addClass("highlightedCalendarWeek");
+		$currentTableCell.css("background-color", statusColorMap[status]);
 	};
-	console.log(year + " " + start + " " + end);
+}
+
+var setTooltips = function() {
+	var $highlightedCalendarWeeks = $(".highlightedCalendarWeek");
+	$highlightedCalendarWeeks.each(function(index, value) {
+		var $this = $(this);
+		var currentIndex = $this.data("index");
+		alert(currentIndex);
+		// $this.mouseover(function(index) {
+		// 	$SP().list(currentListName).get(function(data) {
+		// 		var arrayOfHiddenColumns = [columnGeaendertAm, columnGeaendertVon, columnErfasstAm, columnErstelltVon, columnCopyHistory];
+		// 		var arrayOfColumnsWithAestheticProblems = [columnGeaendertVon, columnErstelltVon, columnErfasstAm, columnGeaendertAm];
+		// 		var numberOfHiddenColumns = arrayOfHiddenColumns.length;
+		// 		var infoText = "";
+		// 		for (var i = 0; i < numberOfHiddenColumns; i++) {
+		// 			var currentColumnName = arrayOfHiddenColumns[i];
+		// 			var currentColumnNumber = nameColumnNumberMap[currentColumnName];
+		// 			var currentColumnDisplayName = nameDisplaynameMap[currentColumnName];
+		// 			var currentEntry = data[currentIndex].getAttribute(currentColumnName);
+		// 			if (currentEntry == null) {
+		// 				currentEntry = " ";
+		// 			};
+		// 			if (arrayOfColumnsWithAestheticProblems.indexOf(currentColumnName) !== -1) {
+		// 				var helperArray = currentEntry.split("#");
+		// 				currentEntry = helperArray[1];
+		// 			}
+		// 			infoText += currentColumnDisplayName + ": " + currentEntry + "&lt;br /&gt;";
+		// 		};
+		// 		$this.wrap(bootstrapTooltip + infoText + '"></a>');
+		// 		$this.closest("a").tooltip();
+		// 	})
+		// })
+	});
 }
