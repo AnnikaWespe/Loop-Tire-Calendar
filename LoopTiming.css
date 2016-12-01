@@ -1,5 +1,11 @@
 th{
 	text-align: center;
 }
-tr.tableCells td{
+ 
+table.table-year{
+	margin-right: 20px;
+}
+.table-wrapper{
+	margin-right: 100px;
+	overflow: scroll;
 }
