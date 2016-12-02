@@ -6,6 +6,9 @@ table.table-year{
 	margin-right: 20px;
 }
 .table-wrapper{
-	margin-right: 100px;
-	overflow: scroll;
+/*	margin-right: 300px;
+	overflow: scroll;*/
+}
+.MyQtip{
+	min-width: 50px;
 }

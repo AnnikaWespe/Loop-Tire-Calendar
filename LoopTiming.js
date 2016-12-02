@@ -1,9 +1,11 @@
+var loremIpsum = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.";
+
 var statusColorMap = {
-	rot: "red",
-	gelb: "yellow",
-	gruen: "green",
-	blau: "blue",
-	lila: "pink"
+	rot: "Tomato",
+	gelb: "Orange",
+	gruen: "LightGreen",
+	blau: "LightSkyBlue",
+	lila: "LightPink"
 }
 
 var availableTires;
@@ -13,6 +15,7 @@ var year2;
 var year3;
 
 var numberOfRowsList;
+
 
 $(document).ready(function() {
 	var date = new Date();
@@ -48,7 +51,7 @@ var getTablesReady = function() {
 	$(".table-year").append(kalenderWochen);
 
 	for (var i = 0; i < numberOfDiffTires; i++) {
-		var tableCells = "<tr class = 'tableCells row" + i + "' style='font-size: 50%'><td>" + availableTires[i] + "</td>";
+		var tableCells = "<tr class = 'tableCells row" + i + "' style='font-size: 75%'><td>" + availableTires[i].split("#")[1] + "</td>";
 		for (var j = 0; j < 52; j++) {
 			tableCells += "<td class = 'row" + i + "column" + j + "'></td>";
 		};
@@ -73,7 +76,7 @@ var setTableData = function() {
 		$SP().list("Loop-Timing").get(function(data) {
 			numberOfRowsList = data.length;
 			for (var i = 0; i < numberOfRowsList; i++) {
-				var currentStartKW = new Number(data[i].getAttribute("gkqu")) - 1;
+				var currentStartKW = new Number(data[i].getAttribute("gkqu"));
 				var currentEndKW = new Number(data[i].getAttribute("vc3x"));
 				var currentEndYear = new Number(data[i].getAttribute("ubmk"));
 				var currentStartYear = new Number(data[i].getAttribute("gj8q"));
@@ -84,7 +87,6 @@ var setTableData = function() {
 				var currentRow = availableTires.indexOf(currentTire);
 				var yearMin = new Number(year0);
 				var yearMax = new Number(year3);
-				console.log(yearMin + " " + yearMax);
 				if (currentStartYear < yearMin && currentEndYear == year0) {
 					markBeginningOfYear(year0, currentEndKW, currentStatus, i, currentRow, currentTooltipText, currentTitle);
 				} else if (currentEndYear > yearMax && currentStartYear == year3) {
@@ -104,11 +106,13 @@ var setTableData = function() {
 }
 
 var markBeginningOfYear = function(year, KW, status, index, row, comment, title) {
-	$eventsection = $(".year" + year).find(".row" + row + "column0");
+	var $eventsection = $(".year" + year).find(".row" + row + "column0");
 	$eventsection.attr('colspan', KW);
-	$eventsection.addClass("index" + index);
+	$eventsection.addClass("highlightedCalendarWeek");
 	$eventsection.css("background-color", statusColorMap[status]);
 	$eventsection.data("tooltip", comment);
+	$eventsection.data("position", "top right");
+	$eventsection.data("edge", "bottom left");
 	$eventsection.text(title);
 	for (var i = 1; i < KW; i++) {
 		$(".year" + year).find(".row" + row + "column" + i).hide();
@@ -118,54 +122,54 @@ var markBeginningOfYear = function(year, KW, status, index, row, comment, title)
 var markEndOfYear = function(year, KW, status, index, row, comment, title) {
 	var calendarWeek = KW - 1;
 	var remainingWeeks = 53 - KW;
-	$eventsection = $(".year" + year).find(".row" + row + "column" + calendarWeek);
+	var $eventsection = $(".year" + year).find(".row" + row + "column" + calendarWeek);
 	$eventsection.attr('colspan', remainingWeeks);
-	$eventsection.addClass("index" + index);
+	$eventsection.addClass("highlightedCalendarWeek");
 	$eventsection.css("background-color", statusColorMap[status]);
 	$eventsection.data("tooltip", comment);
+	$eventsection.data("position", "top left");
+	$eventsection.data("edge", "bottom right");
 	$eventsection.text(title);
 	for (var i = KW; i < 53; i++) {
 		$(".year" + year).find(".row" + row + "column" + i).hide();
 	}
 }
 var markInYear = function(year, start, end, status, index, row, comment, title) {
-	// for (var j = start; j < end; j++) {
-	// 	$currentTableCell = $(".year" + year).find("[id='row0column" + j + "']");
-	// 	$currentTableCell.data("index", index);
-	// 	$currentTableCell.addClass("highlightedCalendarWeek");
-	// 	$currentTableCell.css("background-color", statusColorMap[status]);
-	// };
+	console.log(start + " " + end);
+	var weeks = end - start + 1;
+	console.log("weeks: " + weeks);
+	var startWeek = start - 1;
+	var $eventsection = $(".year" + year).find(".row" + row + "column" + startWeek);
+	var position = (start < 52) ? 'top right' : 'top left';
+	var edge = (start < 52) ? 'bottom left' : 'bottom right';
+	$eventsection.data("position", position);
+	$eventsection.data("edge", edge);
+	$eventsection.attr('colspan', weeks);
+	$eventsection.addClass("highlightedCalendarWeek");
+	$eventsection.css("background-color", statusColorMap[status]);
+	$eventsection.data("tooltip", comment);
+	$eventsection.text(title);
+	for (var i = start; i < end; i++) {
+		$(".year" + year).find(".row" + row + "column" + i).hide();
+	}
 }
 
 var setTooltips = function() {
 	var $highlightedCalendarWeeks = $(".highlightedCalendarWeek");
 	$highlightedCalendarWeeks.each(function(index, value) {
-		var $this = $(this);
-		var currentIndex = $this.data("index");
-		alert(currentIndex);
-		// $this.mouseover(function(index) {
-		// 	$SP().list(currentListName).get(function(data) {
-		// 		var arrayOfHiddenColumns = [columnGeaendertAm, columnGeaendertVon, columnErfasstAm, columnErstelltVon, columnCopyHistory];
-		// 		var arrayOfColumnsWithAestheticProblems = [columnGeaendertVon, columnErstelltVon, columnErfasstAm, columnGeaendertAm];
-		// 		var numberOfHiddenColumns = arrayOfHiddenColumns.length;
-		// 		var infoText = "";
-		// 		for (var i = 0; i < numberOfHiddenColumns; i++) {
-		// 			var currentColumnName = arrayOfHiddenColumns[i];
-		// 			var currentColumnNumber = nameColumnNumberMap[currentColumnName];
-		// 			var currentColumnDisplayName = nameDisplaynameMap[currentColumnName];
-		// 			var currentEntry = data[currentIndex].getAttribute(currentColumnName);
-		// 			if (currentEntry == null) {
-		// 				currentEntry = " ";
-		// 			};
-		// 			if (arrayOfColumnsWithAestheticProblems.indexOf(currentColumnName) !== -1) {
-		// 				var helperArray = currentEntry.split("#");
-		// 				currentEntry = helperArray[1];
-		// 			}
-		// 			infoText += currentColumnDisplayName + ": " + currentEntry + "&lt;br /&gt;";
-		// 		};
-		// 		$this.wrap(bootstrapTooltip + infoText + '"></a>');
-		// 		$this.closest("a").tooltip();
-		// 	})
-		// })
-	});
+		var qTipContent = $(this).data("tooltip") + ":  " + loremIpsum;
+		$(this).qtip({
+			content: qTipContent,
+			show: 'mouseover',
+			hide: 'mouseout',
+			position: {
+				target: 'mouse',
+				my: $(this).data("edge"),
+				at: $(this).data("position")
+			},
+			style: {
+				classes: "MyQtip"
+			}
+		});
+	})
 }
